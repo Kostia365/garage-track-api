@@ -9,18 +9,25 @@ import java.time.LocalDate;
 
 @Schema(description = "Data for updating a car")
 public record UpdateVehicleRequestDto(
-    @NotBlank
     @Size(max = 100)
     @Schema(description = "Car manufacturer", example = "Chevrolet")
+    @Pattern(
+        regexp = ".*\\S.*",
+        message = "must not be blank"
+    )
     String make,
-    @NotBlank
     @Size(max = 100)
     @Schema(description = "Car model", example = "Corvette")
+    @Pattern(
+        regexp = ".*\\S.*",
+        message = "must not be blank"
+    )
     String model,
-    @NotNull
     @Min(1886)
     @Schema(description = "Production year", example = "2017")
     Integer productionYear,
+    @Size(min = 17, max = 17)
+    @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$")
     @Schema(
         description = "Vehicle identification number",
         example = "JTDBR32E720123456"
@@ -29,10 +36,8 @@ public record UpdateVehicleRequestDto(
     @Size(max = 20)
     @Schema(description = "License plate", example = "NR123AB")
     String licensePlate,
-    @NotNull
     @Schema(description = "Fuel type", example = "DIESEL")
     FuelType fuelType,
-    @NotNull
     @PositiveOrZero
     @Schema(description = "Current mileage in kilometres", example = "75000")
     Integer currentMileageKm,

@@ -41,14 +41,32 @@ public class VehicleMapper {
   }
 
   public void updateEntity(UpdateVehicleRequestDto dto, Vehicle vehicle) {
-    vehicle.setMake(dto.make());
-    vehicle.setModel(dto.model());
-    vehicle.setProductionYear(dto.productionYear());
-    vehicle.setVin(dto.vin());
-    vehicle.setLicensePlate(dto.licensePlate());
-    vehicle.setFuelType(dto.fuelType());
-    vehicle.setCurrentMileageKm(dto.currentMileageKm());
-    vehicle.setPurchaseDate(dto.purchaseDate());
-    vehicle.setPurchasePrice(dto.purchasePrice());
+    if (dto.vin() != null) {
+      vehicle.setMake(dto.make());
+    }
+    if (dto.model() != null) {
+      vehicle.setModel(dto.model());
+    }
+    if (dto.productionYear() != null) {
+      vehicle.setProductionYear(dto.productionYear());
+    }
+    if (dto.currentMileageKm() != null) {
+      vehicle.setVin(dto.vin());
+    }
+    if (dto.purchasePrice() != null) {
+      vehicle.setLicensePlate(dto.licensePlate());
+    }
+    if (dto.purchasePrice() != null) {
+      vehicle.setFuelType(dto.fuelType());
+    }
+    if (dto.purchasePrice() != null) {
+      vehicle.setCurrentMileageKm(dto.currentMileageKm());
+    }
+    if (dto.purchasePrice() != null) {
+      vehicle.setPurchaseDate(dto.purchaseDate());
+    }
+    if (dto.purchasePrice() != null) {
+      vehicle.setPurchasePrice(dto.purchasePrice());
+    }
   }
 }

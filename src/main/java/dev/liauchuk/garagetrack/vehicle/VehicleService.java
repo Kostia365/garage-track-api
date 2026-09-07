@@ -7,6 +7,8 @@ import dev.liauchuk.garagetrack.vehicle.dto.VehicleResponseDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class VehicleService {
   private final VehicleRepository vehicleRepository;
@@ -27,8 +29,33 @@ public class VehicleService {
     return vehicleMapper.toResponseDto(savedVehicle);
   }
 
-  public void update(UpdateVehicleRequestDto dto, Vehicle vehicle) {
-    vehicleMapper.updateEntity(dto, vehicle);
+
+
+  @Transactional(readOnly = true)
+  public VehicleResponseDto getById(long id) {
+    Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() ->
+        new IllegalStateException("vehicle with id " + id + " not found"));
+    return vehicleMapper.toResponseDto(vehicle);
+  }
+
+  @Transactional(readOnly = true)
+  public List<VehicleResponseDto> getAll() {
+    return vehicleRepository.findAll().stream()
+        .map(vehicleMapper::toResponseDto)
+        .toList();
+  }
+
+  @Transactional
+  public void softDelete(long id) {
+    Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new IllegalStateException("vehicle with id " + id + " not found"));
+    vehicle.setActive(false);
     vehicleRepository.save(vehicle);
+  }
+
+  @Transactional(readOnly = true)
+  public List<VehicleResponseDto> findAllActive() {
+    return vehicleRepository.findAllByActiveTrue().stream()
+        .map(vehicleMapper::toResponseDto)
+        .toList();
   }
 }
