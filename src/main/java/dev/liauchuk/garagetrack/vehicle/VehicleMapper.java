@@ -40,8 +40,11 @@ public class VehicleMapper {
     );
   }
 
-  public void updateEntity(UpdateVehicleRequestDto dto, Vehicle vehicle) {
-    if (dto.vin() != null) {
+  public void updateEntity(
+      UpdateVehicleRequestDto dto,
+      Vehicle vehicle
+  ) {
+    if (dto.make() != null) {
       vehicle.setMake(dto.make());
     }
     if (dto.model() != null) {
@@ -50,23 +53,25 @@ public class VehicleMapper {
     if (dto.productionYear() != null) {
       vehicle.setProductionYear(dto.productionYear());
     }
-    if (dto.currentMileageKm() != null) {
+    if (dto.vin() != null) {
       vehicle.setVin(dto.vin());
     }
-    if (dto.purchasePrice() != null) {
+    if (dto.licensePlate() != null) {
       vehicle.setLicensePlate(dto.licensePlate());
     }
-    if (dto.purchasePrice() != null) {
+    if (dto.fuelType() != null) {
       vehicle.setFuelType(dto.fuelType());
     }
-    if (dto.purchasePrice() != null) {
+    if (dto.currentMileageKm() != null) {
       vehicle.setCurrentMileageKm(dto.currentMileageKm());
     }
-    if (dto.purchasePrice() != null) {
+
+    if (dto.purchaseDate() != null) {
       vehicle.setPurchaseDate(dto.purchaseDate());
     }
     if (dto.purchasePrice() != null) {
       vehicle.setPurchasePrice(dto.purchasePrice());
     }
   }
+
 }

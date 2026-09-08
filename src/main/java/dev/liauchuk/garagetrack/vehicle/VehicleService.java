@@ -29,8 +29,6 @@ public class VehicleService {
     return vehicleMapper.toResponseDto(savedVehicle);
   }
 
-
-
   @Transactional(readOnly = true)
   public VehicleResponseDto getById(long id) {
     Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() ->
@@ -58,4 +56,23 @@ public class VehicleService {
         .map(vehicleMapper::toResponseDto)
         .toList();
   }
+
+  @Transactional
+  public VehicleResponseDto update(long id, UpdateVehicleRequestDto dto) {
+    Vehicle vehicle = vehicleRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Vehicle with id " + id + " not found"));
+
+    if (dto.vin() != null && vehicleRepository.existsByVinAndIdNot(dto.vin(), id)) {
+      throw new IllegalStateException("Vehicle with this VIN already exists");
+    }
+
+    if (dto.currentMileageKm() != null && vehicle.getCurrentMileageKm() > dto.currentMileageKm()) {
+      throw new IllegalStateException("Current mileage cannot be lower than the previous one");
+    }
+
+    vehicleMapper.updateEntity(dto, vehicle);
+    Vehicle savedVehicle = vehicleRepository.save(vehicle);
+    return vehicleMapper.toResponseDto(savedVehicle);
+  }
+
 }
