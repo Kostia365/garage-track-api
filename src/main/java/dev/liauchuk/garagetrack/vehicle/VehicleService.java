@@ -4,6 +4,9 @@ package dev.liauchuk.garagetrack.vehicle;
 import dev.liauchuk.garagetrack.vehicle.dto.CreateVehicleRequestDto;
 import dev.liauchuk.garagetrack.vehicle.dto.UpdateVehicleRequestDto;
 import dev.liauchuk.garagetrack.vehicle.dto.VehicleResponseDto;
+import dev.liauchuk.garagetrack.vehicle.exception.VehicleMileageCannotBeDecreasedException;
+import dev.liauchuk.garagetrack.vehicle.exception.VehicleNotFoundException;
+import dev.liauchuk.garagetrack.vehicle.exception.VehicleVinAlreadyExistsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +25,7 @@ public class VehicleService {
   @Transactional
   public VehicleResponseDto create(CreateVehicleRequestDto dto) {
     if (dto.vin() != null && vehicleRepository.existsByVin(dto.vin())) {
-      throw new IllegalStateException("vehicle with this vin already exist");
+      throw new VehicleVinAlreadyExistsException(dto.vin());
     }
     Vehicle vehicle = vehicleMapper.toEntity(dto);
     Vehicle savedVehicle = vehicleRepository.save(vehicle);
@@ -32,7 +35,7 @@ public class VehicleService {
   @Transactional(readOnly = true)
   public VehicleResponseDto getById(long id) {
     Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() ->
-        new IllegalStateException("vehicle with id " + id + " not found"));
+        new VehicleNotFoundException(id));
     return vehicleMapper.toResponseDto(vehicle);
   }
 
@@ -45,7 +48,7 @@ public class VehicleService {
 
   @Transactional
   public void softDelete(long id) {
-    Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new IllegalStateException("vehicle with id " + id + " not found"));
+    Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
     vehicle.setActive(false);
     vehicleRepository.save(vehicle);
   }
@@ -60,14 +63,17 @@ public class VehicleService {
   @Transactional
   public VehicleResponseDto update(long id, UpdateVehicleRequestDto dto) {
     Vehicle vehicle = vehicleRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Vehicle with id " + id + " not found"));
+        .orElseThrow(() -> new VehicleNotFoundException(id));
 
     if (dto.vin() != null && vehicleRepository.existsByVinAndIdNot(dto.vin(), id)) {
-      throw new IllegalStateException("Vehicle with this VIN already exists");
+      throw new VehicleVinAlreadyExistsException(dto.vin());
     }
 
     if (dto.currentMileageKm() != null && vehicle.getCurrentMileageKm() > dto.currentMileageKm()) {
-      throw new IllegalStateException("Current mileage cannot be lower than the previous one");
+      throw new VehicleMileageCannotBeDecreasedException(
+          vehicle.getCurrentMileageKm(),
+          dto.currentMileageKm()
+      );
     }
 
     vehicleMapper.updateEntity(dto, vehicle);
