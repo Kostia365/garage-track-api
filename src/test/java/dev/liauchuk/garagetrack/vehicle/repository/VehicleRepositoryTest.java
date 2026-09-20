@@ -4,12 +4,19 @@ import dev.liauchuk.garagetrack.vehicle.FuelType;
 import dev.liauchuk.garagetrack.vehicle.Vehicle;
 import dev.liauchuk.garagetrack.vehicle.VehicleRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +29,7 @@ import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTest
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)
+@Testcontainers
 class VehicleRepositoryTest {
 
   private static final Logger log =
@@ -30,6 +38,13 @@ class VehicleRepositoryTest {
   private static final String FIRST_VIN = "WVWZZZ1JZXW000001";
   private static final String SECOND_VIN = "WVWZZZ1JZXW000002";
   private static final String UNKNOWN_VIN = "WVWZZZ1JZXW999999";
+
+  @Container
+  @ServiceConnection
+  private static final PostgreSQLContainer postgres =
+      new PostgreSQLContainer(
+          DockerImageName.parse("postgres:18.1-alpine")
+      );
 
   @Autowired
   private VehicleRepository vehicleRepository;
@@ -91,6 +106,22 @@ class VehicleRepositoryTest {
     assertThrows(
         DataIntegrityViolationException.class,
         () -> vehicleRepository.saveAndFlush(testVehicle(FIRST_VIN, true))
+    );
+  }
+
+  @ParameterizedTest(name = "{0} can be persisted")
+  @EnumSource(FuelType.class)
+  void everyFuelTypeCanBePersisted(FuelType fuelType) {
+    Vehicle entity = testVehicle(vinFor(fuelType), true);
+    entity.setFuelType(fuelType);
+
+    vehicleRepository.saveAndFlush(entity);
+  }
+
+  private String vinFor(FuelType fuelType) {
+    return "WVWZZZ1JZXW" + String.format(
+        "%06d",
+        fuelType.ordinal() + 1
     );
   }
 
