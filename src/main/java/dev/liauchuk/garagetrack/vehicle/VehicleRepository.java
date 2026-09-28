@@ -10,6 +10,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
   boolean existsByVinAndIdNot(String vin, Long id);
 
+  boolean existsByIdAndActiveTrue(Long id);
+
   Optional<Vehicle> findById(Long id);
 
   List<Vehicle> findAllByActiveTrue();

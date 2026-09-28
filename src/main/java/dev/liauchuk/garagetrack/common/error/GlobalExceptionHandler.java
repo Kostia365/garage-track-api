@@ -1,5 +1,6 @@
 package dev.liauchuk.garagetrack.common.error;
 
+import dev.liauchuk.garagetrack.fuelentry.exception.FuelEntryNotFoundException;
 import dev.liauchuk.garagetrack.vehicle.exception.VehicleMileageCannotBeDecreasedException;
 import dev.liauchuk.garagetrack.vehicle.exception.VehicleNotFoundException;
 import dev.liauchuk.garagetrack.vehicle.exception.VehicleVinAlreadyExistsException;
@@ -17,6 +18,19 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
   @ExceptionHandler(VehicleNotFoundException.class)
   public ResponseEntity<ApiErrorResponseDto> handleVehicleNotFoundException(VehicleNotFoundException e, HttpServletRequest request) {
+    HttpStatus status = HttpStatus.NOT_FOUND;
+    ApiErrorResponseDto body = new ApiErrorResponseDto(
+        Instant.now(),
+        status.value(),
+        status.getReasonPhrase(),
+        e.getMessage(),
+        request.getRequestURI()
+    );
+    return ResponseEntity.status(status).body(body);
+  }
+
+  @ExceptionHandler(FuelEntryNotFoundException.class)
+  public ResponseEntity<ApiErrorResponseDto> handleFuelEntryNotFoundException(FuelEntryNotFoundException e, HttpServletRequest request) {
     HttpStatus status = HttpStatus.NOT_FOUND;
     ApiErrorResponseDto body = new ApiErrorResponseDto(
         Instant.now(),
